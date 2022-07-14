@@ -28,7 +28,42 @@ function tryToParse(source, hash) {
   let ast;
 
   try {
-    ast = parse(source);
+    ast = parse(source, {
+          allowImportExportEverywhere: true,
+          allowReturnOutsideFunction: true,
+          allowUndeclaredExports: true,
+          errorRecovery: true,
+          plugins: [
+            '*',
+            'flow',
+            'jsx',
+            'asyncGenerators',
+            'bigInt',
+            'classPrivateMethods',
+            'classPrivateProperties',
+            'classProperties',
+            'doExpressions',
+            'dynamicImport',
+            'exportDefaultFrom',
+            'exportExtensions',
+            'exportNamespaceFrom',
+            'functionBind',
+            'functionSent',
+            'importMeta',
+            'nullishCoalescingOperator',
+            'numericSeparator',
+            'objectRestSpread',
+            'optionalCatchBinding',
+            'optionalChaining',
+            [ 'pipelineOperator', {proposal: "minimal"} ],
+            'throwExpressions',
+            'topLevelAwait'
+          ],
+          sourceType: 'module',
+          strictMode: false,
+          allowAwaitOutsideFunction: true
+        }
+    );
   } catch (e) {
     if (typeof e.loc === 'object') {
       e.$ParseError = true;

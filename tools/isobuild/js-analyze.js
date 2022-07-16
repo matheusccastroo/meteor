@@ -28,7 +28,42 @@ function tryToParse(source, hash) {
   let ast;
 
   try {
-    ast = parse(source);
+    ast = parse(source, {
+          allowImportExportEverywhere: true,
+          allowReturnOutsideFunction: true,
+          allowUndeclaredExports: true,
+          errorRecovery: true,
+          plugins: [
+            '*',
+            'flow',
+            'jsx',
+            'asyncGenerators',
+            'bigInt',
+            'classPrivateMethods',
+            'classPrivateProperties',
+            'classProperties',
+            'doExpressions',
+            'dynamicImport',
+            'exportDefaultFrom',
+            'exportExtensions',
+            'exportNamespaceFrom',
+            'functionBind',
+            'functionSent',
+            'importMeta',
+            'nullishCoalescingOperator',
+            'numericSeparator',
+            'objectRestSpread',
+            'optionalCatchBinding',
+            'optionalChaining',
+            [ 'pipelineOperator', {proposal: "minimal"} ],
+            'throwExpressions',
+            'topLevelAwait'
+          ],
+          sourceType: 'module',
+          strictMode: false,
+          allowAwaitOutsideFunction: true
+        }
+    );
   } catch (e) {
     if (typeof e.loc === 'object') {
       e.$ParseError = true;
@@ -90,8 +125,8 @@ const importedIdentifierVisitor = new (class extends Visitor {
 
   addIdentifier(id, type, dynamic) {
     const entry = hasOwn.call(this.identifiers, id)
-      ? this.identifiers[id]
-      : this.identifiers[id] = {
+        ? this.identifiers[id]
+        : this.identifiers[id] = {
           possiblySpurious: true,
           dynamic: !! dynamic
         };
@@ -104,7 +139,7 @@ const importedIdentifierVisitor = new (class extends Visitor {
       // If the identifier comes from a require call, but require is not a
       // free variable, then this dependency might be spurious.
       entry.possiblySpurious =
-        entry.possiblySpurious && this.requireIsBound;
+          entry.possiblySpurious && this.requireIsBound;
     } else {
       // The import keyword can't be shadowed, so any dependencies
       // registered by import statements should be trusted absolutely.
@@ -152,23 +187,23 @@ const importedIdentifierVisitor = new (class extends Visitor {
       this.addIdentifier(firstArg.value, "require");
 
     } else if (node.callee.type === "Import" ||
-               isIdWithName(node.callee, "import")) {
+        isIdWithName(node.callee, "import")) {
       this.addIdentifier(firstArg.value, "import", true);
 
     } else if (node.callee.type === "MemberExpression" &&
-               // The Reify compiler sometimes renames references to the
-               // CommonJS module object for hygienic purposes, but it
-               // always does so by appending additional numbers.
-               isIdWithName(node.callee.object, /^module\d*$/)) {
+        // The Reify compiler sometimes renames references to the
+        // CommonJS module object for hygienic purposes, but it
+        // always does so by appending additional numbers.
+        isIdWithName(node.callee.object, /^module\d*$/)) {
       const propertyName =
-        isPropertyWithName(node.callee.property, "link") ||
-        isPropertyWithName(node.callee.property, "dynamicImport");
+          isPropertyWithName(node.callee.property, "link") ||
+          isPropertyWithName(node.callee.property, "dynamicImport");
 
       if (propertyName) {
         this.addIdentifier(
-          firstArg.value,
-          "import",
-          propertyName === "dynamicImport"
+            firstArg.value,
+            "import",
+            propertyName === "dynamicImport"
         );
       }
     }
@@ -192,9 +227,9 @@ const importedIdentifierVisitor = new (class extends Visitor {
     // is always a string-valued Literal node, if not null.
     if (isStringLiteral(node.source)) {
       this.addIdentifier(
-        node.source.value,
-        "import",
-        false
+          node.source.value,
+          "import",
+          false
       );
     }
   }
@@ -219,15 +254,15 @@ function isIdWithName(node, name) {
 
 function isStringLiteral(node) {
   return node && (
-    node.type === "StringLiteral" ||
-    (node.type === "Literal" &&
-     typeof node.value === "string"));
+      node.type === "StringLiteral" ||
+      (node.type === "Literal" &&
+          typeof node.value === "string"));
 }
 
 function isPropertyWithName(node, name) {
   if (isIdWithName(node, name) ||
       (isStringLiteral(node) &&
-       node.value === name)) {
+          node.value === name)) {
     return name;
   }
 }

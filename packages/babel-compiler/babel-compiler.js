@@ -116,6 +116,13 @@ BCp.processOneFileForTarget = function (inputFile, source) {
     this.inferTypeScriptConfig(
       features, inputFile, cacheOptions.cacheDeps);
 
+
+    if (packageName === "mongo" && inputFilePath.includes("collection.js")) {
+      features.useModule = true;
+      features.useNative = true;
+    }
+
+
     var babelOptions = Babel.getDefaultOptions(features);
     babelOptions.caller = { name: "meteor", arch };
 

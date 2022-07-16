@@ -704,7 +704,7 @@ Object.assign(File.prototype, {
       return headerParts.join("");
     }
 
-    return "(function(){";
+    return "await (async function(){";
   },
 
   _getClosureFooter() {
@@ -965,7 +965,7 @@ var getHeader = function (options) {
   var chunks = [];
 
   chunks.push(
-    "(function () {\n\n",
+    "(async function () {\n\n",
     getImportCode(options.imports, "/* Imports */\n", false),
   );
 

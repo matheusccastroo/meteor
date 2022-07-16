@@ -374,7 +374,7 @@ var loadServerBundles = Profile("Load server bundles", function () {
       }
     };
 
-    var wrapParts = ["(function(Npm,Assets"];
+    var wrapParts = ["(async function(Npm,Assets"];
 
     var specialArgs =
       hasOwn.call(specialArgPaths, fileInfo.path) &&

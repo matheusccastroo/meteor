@@ -224,7 +224,8 @@ var specialArgPaths = {
 
 var loadServerBundles = Profile("Load server bundles", function () {
   var infos = [];
-
+  const fiber = Fiber.current;
+  let count = 0;
   serverJson.load.forEach(function (fileInfo) {
     var code = fs.readFileSync(path.resolve(serverDir, fileInfo.path));
     var nonLocalNodeModulesPaths = [];
@@ -401,10 +402,35 @@ var loadServerBundles = Profile("Load server bundles", function () {
     var scriptPath =
       parsedSourceMaps[absoluteFilePath] ? absoluteFilePath : fileInfoOSPath;
 
-    var func = require('vm').runInThisContext(wrapped, {
-      filename: scriptPath,
-      displayErrors: true
-    });
+    let func;
+    let _wrapped = wrapped
+    if (wrapped.match("packages/mongo/collection.js")) {
+      console.log("Tô no arquivo certo.");
+      _wrapped = _wrapped.replace("(function(Npm,Assets){(function", "(async function(Npm,Assets){await (async function");
+      _wrapped = _wrapped.replace(":function module(require,exports,module){", ": await async function module(require,exports,module){");
+      _wrapped = _wrapped.replace(":function module(require,exports,module){", ": await async function module(require,exports,module){");
+      _wrapped = _wrapped.replace(":function module(require,exports,module){", ": await async function module(require,exports,module){");
+      _wrapped = _wrapped.replace(":function module(require,exports,module){", ": await async function module(require,exports,module){");
+      _wrapped = _wrapped.replace(":function module(require,exports,module){", ": await async function module(require,exports,module){");
+      _wrapped = _wrapped.replace(":function module(require,exports,module){", ": await async function module(require,exports,module){");
+      _wrapped = _wrapped.replace(":function module(require,exports,module){", ": await async function module(require,exports,module){");
+      _wrapped = _wrapped.replace(":function module(require,exports,module){", ": await async function module(require,exports,module){");
+      _wrapped = _wrapped.replace(":function module(require,exports,module){", ": await async function module(require,exports,module){");
+
+      _wrapped = _wrapped.replace("!function (module1) {", "!await async function (module1) {");
+      _wrapped = _wrapped.replace("!function (module1) {", "!await async function (module1) {");
+      _wrapped = _wrapped.replace('require("/node_modules/meteor/mongo/collection.js")', 'await require("/node_modules/meteor/mongo/collection.js"); console.log("deps do require");');
+      // console.log(_wrapped);
+    }
+    try {
+      func = require('vm').runInThisContext(_wrapped, {
+        filename: scriptPath,
+        displayErrors: true
+      });
+    } catch (e) {
+      // console.log(_wrapped);
+      throw e;
+    }
 
     var args = [Npm, Assets];
 
@@ -418,8 +444,18 @@ var loadServerBundles = Profile("Load server bundles", function () {
         args
       });
     } else {
+      count++;
       // Allows us to use code-coverage if the debugger is not enabled
-      Profile(fileInfo.path, func).apply(global, args);
+      const isAsync = func.constructor.name === 'AsyncFunction';
+      if (!isAsync) {
+        func.apply(global, args);
+        // console.log("sync")
+      } else {
+        func.apply(global, args).then(() => fiber.run());
+        Fiber.yield();
+        // console.log("async")
+      }
+      console.log("Count is: ", count);
     }
   });
 

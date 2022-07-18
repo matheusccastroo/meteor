@@ -907,6 +907,9 @@ ASYNC_COLLECTION_METHODS.forEach(methodName => {
 if (Meteor.isServer) {
   const userOptions = Meteor.settings?.packages?.mongo || {};
   if (!userOptions?.skipStartupConnection && !process.env.METEOR_TEST_FAKE_MONGOD_CONTROL_PORT) {
-    Promise.await(MongoInternals.defaultRemoteCollectionDriver());
+    console.log("oioio")
+    await MongoInternals.defaultRemoteCollectionDriver();
+    console.log("daskodakso");
+    console.log("MongoInternals.defaultRemoteCollectionDriver")
   }
 }

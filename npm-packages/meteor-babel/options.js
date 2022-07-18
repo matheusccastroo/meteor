@@ -155,7 +155,7 @@ function getRuntimeTransform(features) {
     // Use @babel/runtime/helpers/*.js:
     helpers: true,
     // Do not use @babel/runtime/helpers/esm/*.js:
-    useESModules: false,
+    useESModules: !!features.useModule,
     // Do not import from @babel/runtime-corejs2
     // or @babel/runtime-corejs3:
     corejs: false,
@@ -188,7 +188,7 @@ function getDefaultsForNode8(features) {
     combined.plugins.push([require("./plugins/async-await.js"), {
       // Do not transform `await x` to `Promise.await(x)`, since Node
       // 8 has native support for await expressions.
-      useNativeAsyncAwait: false
+      useNativeAsyncAwait: !!features.useNative
     }]);
 
     // Enable async generator functions proposal.

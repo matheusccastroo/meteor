@@ -7,7 +7,7 @@ Package.describe({
 });
 
 Npm.depends({
-  install: "0.13.0"
+  install: "file:///home/matheus/WebstormProjects/install"
 });
 
 Package.onUse(function(api) {

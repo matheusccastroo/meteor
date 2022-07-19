@@ -909,6 +909,7 @@ if (Meteor.isServer) {
   if (!userOptions?.skipStartupConnection && !process.env.METEOR_TEST_FAKE_MONGOD_CONTROL_PORT) {
     console.log("oioio")
     await MongoInternals.defaultRemoteCollectionDriver();
+    console.log(String(arguments.callee));
     console.log("daskodakso");
     console.log("MongoInternals.defaultRemoteCollectionDriver")
   }
